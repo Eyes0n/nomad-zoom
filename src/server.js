@@ -22,15 +22,36 @@ const sockets = [];
 
 wss.on('connection', (socket) => {
   console.log('Connected to Browser');
+  // Broadcast 1
   sockets.push(socket);
+
+  // 임의로 유저 닉네임 설정
+  socket['nickname'] = 'Anon';
 
   socket.on('message', (msg) => {
     console.log('msg: %s', msg);
+    const parsedMsg = JSON.parse(msg);
 
-    // Broadcast 1
-    sockets.forEach((socket) => socket.send(msg));
-    // Broadcast 2: websocket.clients 사용
-    // wss.clients.forEach((socketClient) => socketClient.send(msg));
+    switch (parsedMsg.type) {
+      case 'message':
+        // Broadcast 1
+        sockets.forEach((socketClient) =>
+          socketClient.send(`${socket.nickname}: ${parsedMsg.payload}`)
+        );
+        // Broadcast 2: websocket.clients 사용
+        // wss.clients.forEach((socketClient) =>
+        //   socketClient.send(`${socket.nickname}: ${parsedMsg.payload}`)
+        // );
+        break;
+
+      case 'nickname':
+        // 닉네임 설정
+        socket['nickname'] = parsedMsg.payload;
+        break;
+
+      default:
+        break;
+    }
   });
 
   socket.on('close', () => {
