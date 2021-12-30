@@ -17,14 +17,20 @@ app.get('/*', (_req, res) => res.redirect('/'));
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+// Broadcast 1: 배열로 client 관리
+const sockets = [];
+
 wss.on('connection', (socket) => {
   console.log('Connected to Browser');
-
-  socket.send('hello!!');
+  sockets.push(socket);
 
   socket.on('message', (msg) => {
-    // console.log('msg: %s', msg);
-    console.log(`msg: ${JSON.stringify(msg)}`);
+    console.log('msg: %s', msg);
+
+    // Broadcast 1
+    sockets.forEach((socket) => socket.send(msg));
+    // Broadcast 2: websocket.clients 사용
+    // wss.clients.forEach((socketClient) => socketClient.send(msg));
   });
 
   socket.on('close', () => {
