@@ -21,6 +21,7 @@ const io = new Server(httpServer);
 
 io.on('connection', (socket) => {
   console.log('Connected to Browser');
+  socket['nickname'] = 'Anon';
 
   socket.on('enter_room', (roomName, done) => {
     // join room
@@ -29,17 +30,21 @@ io.on('connection', (socket) => {
     done();
 
     // Broadcasting to others in room
-    socket.to(roomName).emit('welcome');
+    socket.to(roomName).emit('welcome', socket.nickname);
   });
+
+  socket.on('nickname', (nickname) => (socket['nickname'] = nickname));
 
   socket.on('message', (msg, room, done) => {
     // Broadcasting to others in room
-    socket.to(room).emit('message', msg);
+    socket.to(room).emit('message', `${socket['nickname']}: ${msg}`);
     done();
   });
 
   socket.on('disconnecting', () => {
-    socket.rooms.forEach((room) => socket.to(room).emit('leave'));
+    socket.rooms.forEach((room) =>
+      socket.to(room).emit('leave', socket.nickname)
+    );
   });
 });
 
