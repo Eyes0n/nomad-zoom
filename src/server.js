@@ -31,6 +31,16 @@ io.on('connection', (socket) => {
     // Broadcasting to others in room
     socket.to(roomName).emit('welcome');
   });
+
+  socket.on('message', (msg, room, done) => {
+    // Broadcasting to others in room
+    socket.to(room).emit('message', msg);
+    done();
+  });
+
+  socket.on('disconnecting', () => {
+    socket.rooms.forEach((room) => socket.to(room).emit('leave'));
+  });
 });
 
 httpServer.listen(3000, () => {
