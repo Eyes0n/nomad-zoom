@@ -37,12 +37,16 @@ function publicRooms() {
   return publics;
 }
 
+function countRoom(roomName) {
+  return io.sockets.adapter.rooms.get(roomName)?.size;
+}
+
 io.on('connection', (socket) => {
   console.log('Connected to Browser');
   socket['nickname'] = 'Anon';
 
   socket.onAny((event) => {
-    console.log(`Socket Event: ${event} \n Sid: ${socket.id}`);
+    console.log(`Socket Event: ${event}`);
   });
 
   io.sockets.emit('room_change', publicRooms());
@@ -51,10 +55,10 @@ io.on('connection', (socket) => {
     // join room
     socket.join(roomName);
 
-    done();
+    done(countRoom(roomName));
 
     // Broadcasting to others in room
-    socket.to(roomName).emit('welcome', socket.nickname);
+    socket.to(roomName).emit('welcome', socket.nickname, countRoom(roomName));
 
     // Broadcast to all sockets
     io.sockets.emit('room_change', publicRooms());
@@ -76,7 +80,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnecting', () => {
     socket.rooms.forEach((room) =>
-      socket.to(room).emit('leave', socket.nickname)
+      socket.to(room).emit('leave', socket.nickname, countRoom(room) - 1)
     );
   });
 

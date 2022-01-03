@@ -40,12 +40,12 @@ function handleRoomExit() {
   socket.emit('exit_room', roomName);
 }
 
-function showRoomMsg() {
+function showRoomMsg(userCount) {
   welcome.hidden = true;
   roomMsg.hidden = false;
 
   const h3 = roomMsg.querySelector('h3');
-  h3.textContent = `Room ${roomName}`;
+  h3.textContent = `Room ${roomName} (${userCount})`;
 
   const msgForm = roomMsg.querySelector('#msg');
   const exitBtn = roomMsg.querySelector('#roomExit');
@@ -66,11 +66,15 @@ function handleRoomSubmit(evt) {
 nickForm.addEventListener('submit', handleNicknameSubmit);
 roomForm.addEventListener('submit', handleRoomSubmit);
 
-socket.on('welcome', (user) => {
+socket.on('welcome', (user, userCount) => {
+  const h3 = roomMsg.querySelector('h3');
+  h3.textContent = `Room ${roomName} (${userCount})`;
   addMessage(`${user} join!`);
 });
 
-socket.on('leave', (user) => {
+socket.on('leave', (user, userCount) => {
+  const h3 = roomMsg.querySelector('h3');
+  h3.textContent = `Room ${roomName} (${userCount})`;
   addMessage(`${user} left`);
 });
 
