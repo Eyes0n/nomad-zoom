@@ -41,10 +41,21 @@ io.on('connection', (socket) => {
     done();
   });
 
+  socket.on('exit_room', (room) => {
+    // leave room
+    socket.leave(room);
+    console.log(`${socket.nickname} exited the room`);
+    socket.to(room).emit('message', `${socket.nickname} exited the room`);
+  });
+
   socket.on('disconnecting', () => {
     socket.rooms.forEach((room) =>
       socket.to(room).emit('leave', socket.nickname)
     );
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`Disconnected`);
   });
 });
 
