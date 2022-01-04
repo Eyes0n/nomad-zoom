@@ -11,7 +11,7 @@ app.set('views', __dirname + '/views');
 app.use('/public', express.static(__dirname + '/public'));
 
 // api
-app.get('/', (_req, res) => res.render('home'));
+app.get('/', (_req, res) => res.render('WebSocketHome'));
 app.get('/*', (_req, res) => res.redirect('/'));
 
 const server = http.createServer(app);
