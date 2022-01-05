@@ -13,5 +13,8 @@ html(lang="en")
       div#myStream
         //- playsinline : video 자동 실행 시 전체화면으로 설정되어 있는 기본값을 해제
         video#myFace(autoplay, muted, playsinline, width='400', height='400')
+        button#mute Mute
+        button#camera Turn camera off
+    
     script(src="/socket.io/socket.io.js")
     script(src="/public/js/app.js") 
