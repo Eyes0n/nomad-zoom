@@ -14,6 +14,23 @@ const constraints = {
   audio: true,
 };
 
+async function getCameras() {
+  try {
+    // enumerateDevices(): 사용 가능한 미디어 입력 및 출력 장치에 대한 정보 배열
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cameras = devices.filter((device) => device.kind === 'videoinput');
+
+    cameras.forEach((camera) => {
+      const option = document.createElement('option');
+      option.value = camera.deviceId;
+      option.textContent = camera.label;
+      camerasSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function getMedia() {
   try {
     // getUserMedia(constraints): 사용자에게 미디어 입력 장치 사용 권한 요청하여 기기의 MediaStream을 반환
@@ -21,6 +38,7 @@ async function getMedia() {
     // return: 비디오 트랙과 오디오 트랙으로 구성된 MediaStream
     myStream = await navigator.mediaDevices.getUserMedia(constraints);
     myFace.srcObject = myStream;
+    await getCameras();
   } catch (error) {
     console.log('Error accessing media devices.', error);
   }
