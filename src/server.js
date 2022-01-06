@@ -29,6 +29,21 @@ instrument(io, {
   auth: false,
 });
 
+io.on('connection', (socket) => {
+  socket.on('join_room', (roomName) => {
+    socket.join(roomName);
+    socket.to(roomName).emit('join_room', 'someone joined');
+  });
+
+  socket.on('offer', (offer, room) => {
+    socket.to(room).emit('offer', offer);
+  });
+
+  socket.on('answer', (answer, room) => {
+    socket.to(room).emit('answer', answer);
+  });
+});
+
 httpServer.listen(3000, () => {
   console.log('Listening on http://localhost:3000');
 });

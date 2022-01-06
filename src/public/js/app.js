@@ -5,9 +5,16 @@ const muteBtn = document.getElementById('mute');
 const cameraBtn = document.getElementById('camera');
 const camerasSelect = document.getElementById('cameras');
 
+const call = document.getElementById('call');
+
+call.hidden = true;
+
 let myStream;
 let isMuted = true;
 let isCameraOff = false;
+
+let roomName;
+let myPeerConnection;
 
 async function getCameras() {
   try {
@@ -59,8 +66,6 @@ async function getMedia(deviceId) {
   }
 }
 
-getMedia();
-
 function handleMuteClick() {
   //  getAudioTracks()
   const myAudioTracks = myStream.getAudioTracks();
@@ -99,3 +104,53 @@ async function handleCameraChange() {
 muteBtn.addEventListener('click', handleMuteClick);
 cameraBtn.addEventListener('click', handleCameraClick);
 camerasSelect.addEventListener('input', handleCameraChange);
+
+// ********** Welcome (join a room) Code **********
+const welcome = document.getElementById('welcome');
+const welcomeForm = welcome.querySelector('form');
+
+async function initRTC() {
+  welcome.hidden = true;
+  call.hidden = false;
+  await getMedia();
+  makeRtcConnection();
+}
+
+async function handleWelcomeSubmit(evt) {
+  evt.preventDefault();
+  const input = welcomeForm.querySelector('input');
+  await initRTC();
+  socket.emit('join_room', input.value);
+  roomName = input.value;
+  input.value = '';
+}
+welcomeForm.addEventListener('submit', handleWelcomeSubmit);
+
+// ********** Socket Code **********
+socket.on('join_room', async (msg) => {
+  // Peer Connection 1. Caller create and send offer to Callee
+  const offer = await myPeerConnection.createOffer(); // return RTCSessionDescription obj
+  myPeerConnection.setLocalDescription(offer);
+  socket.emit('offer', offer, roomName);
+});
+
+socket.on('offer', async (offer) => {
+  // Peer Connection 2. Callee register the caller's offer and send callee's answer
+  myPeerConnection.setRemoteDescription(offer);
+  const answer = await myPeerConnection.createAnswer(); // return RTCSessionDescription obj
+  myPeerConnection.setLocalDescription(answer);
+  socket.emit('answer', answer, roomName);
+});
+
+socket.on('answer', (answer) => {
+  // Peer Connection 3. Caller register callee's answer
+  myPeerConnection.setRemoteDescription(answer);
+});
+
+// ********** RTC Code **********
+function makeRtcConnection() {
+  myPeerConnection = new RTCPeerConnection();
+  myStream
+    .getTracks()
+    .forEach((track) => myPeerConnection.addTrack(track, myStream));
+}
