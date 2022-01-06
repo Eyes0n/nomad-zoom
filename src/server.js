@@ -42,6 +42,10 @@ io.on('connection', (socket) => {
   socket.on('answer', (answer, room) => {
     socket.to(room).emit('answer', answer);
   });
+
+  socket.on('iceCandidate', (ice, room) => {
+    socket.to(room).emit('iceCandidate', ice);
+  });
 });
 
 httpServer.listen(3000, () => {

@@ -132,24 +132,39 @@ socket.on('join_room', async (msg) => {
   const offer = await myPeerConnection.createOffer(); // return RTCSessionDescription obj
   myPeerConnection.setLocalDescription(offer);
   socket.emit('offer', offer, roomName);
+  console.log('sent the offer');
 });
 
 socket.on('offer', async (offer) => {
+  console.log('received the offer');
   // Peer Connection 2. Callee register the caller's offer and send callee's answer
   myPeerConnection.setRemoteDescription(offer);
   const answer = await myPeerConnection.createAnswer(); // return RTCSessionDescription obj
   myPeerConnection.setLocalDescription(answer);
   socket.emit('answer', answer, roomName);
+  console.log('sent the answer');
 });
 
 socket.on('answer', (answer) => {
+  console.log('received the answer');
   // Peer Connection 3. Caller register callee's answer
   myPeerConnection.setRemoteDescription(answer);
 });
 
+socket.on('iceCandidate', (ice) => {
+  console.log('received iceCandidate');
+  myPeerConnection.addIceCandidate(ice);
+});
+
 // ********** RTC Code **********
+function handleIceCandidate(data) {
+  console.log('sent iceCandidate');
+  socket.emit('iceCandidate', data.candidate, roomName);
+}
+
 function makeRtcConnection() {
   myPeerConnection = new RTCPeerConnection();
+  myPeerConnection.addEventListener('icecandidate', handleIceCandidate);
   myStream
     .getTracks()
     .forEach((track) => myPeerConnection.addTrack(track, myStream));
