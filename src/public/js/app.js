@@ -89,10 +89,10 @@ function handleCameraClick() {
 
   if (isCameraOff) {
     isCameraOff = false;
-    cameraBtn.innerText = 'Turn camera on';
+    cameraBtn.innerText = 'Turn camera off';
   } else {
     isCameraOff = true;
-    cameraBtn.innerText = 'Turn camera off';
+    cameraBtn.innerText = 'Turn camera on';
   }
 }
 
