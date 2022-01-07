@@ -101,7 +101,7 @@ async function handleCameraChange() {
   await getMedia(camerasSelect.value); // call when change video track
 
   if (myPeerConnection) {
-    const videoTrack = stream.getVideoTracks()[0]; // changed video Track === current video Track
+    const videoTrack = myStream.getVideoTracks()[0]; // changed video Track === current video Track
     const videoSender = myPeerConnection
       .getSenders()
       .find((sender) => sender.track.kind == videoTrack.kind);
