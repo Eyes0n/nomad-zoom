@@ -175,8 +175,12 @@ function handleAddStream(data) {
   peerFace.srcObject = data.stream;
 }
 
+const configuration = {
+  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+};
+
 function makeRtcConnection() {
-  myPeerConnection = new RTCPeerConnection();
+  myPeerConnection = new RTCPeerConnection(configuration);
   myPeerConnection.addEventListener('icecandidate', handleIceCandidate);
   myPeerConnection.addEventListener('addstream', handleAddStream);
 
