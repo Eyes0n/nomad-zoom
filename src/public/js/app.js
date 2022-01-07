@@ -97,8 +97,16 @@ function handleCameraClick() {
 }
 
 async function handleCameraChange() {
-  // camera.value is deviceId
-  await getMedia(camerasSelect.value);
+  // camerasSelect.value is deviceId
+  await getMedia(camerasSelect.value); // call when change video track
+
+  if (myPeerConnection) {
+    const videoTrack = stream.getVideoTracks()[0]; // changed video Track === current video Track
+    const videoSender = myPeerConnection
+      .getSenders()
+      .find((sender) => sender.track.kind == videoTrack.kind);
+    videoSender.replaceTrack(videoTrack);
+  }
 }
 
 muteBtn.addEventListener('click', handleMuteClick);
